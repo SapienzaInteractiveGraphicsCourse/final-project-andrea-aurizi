@@ -48,10 +48,6 @@ var createScene = function(){
     life1.fontFamily = "Lucida Console";
     rect1.addControl(life1);
 
-    //addRadio("Easy", panel2 ,life1);
-    //addRadio("Medium", panel2, life1);
-    //addRadio("Hard", panel2, life1);
-
     var life2 = new BABYLON.GUI.TextBlock();
     life2.text = "LIFE: ";
     life2.left = "-15px";
@@ -77,24 +73,11 @@ var createScene = function(){
 
     rect2.addControl(hint);
 
-    //
+    //Sounds
     var scream = new BABYLON.Sound("screamsound", "./sounds/scream.mp3",scene, null, {volume: 0.3});
+    var music = new BABYLON.Sound("music", "./sounds/music.mp3",scene, null, {volume: 0.3});
+    var boss_music = new BABYLON.Sound("bossmusic", "./sounds/boss_music_cutted.mp3",scene, null, {volume: 0.3});
 
-
-    /*var label = new BABYLON.GUI.TextBlock();
-    label.fontFamily = "Lucida Console";
-    label.text = "Press Spacebar to jump!";
-    label.color = "white";
-    advancedTexture.addControl(label);
-
-
-    var label3 = new BABYLON.GUI.TextBlock();
-    label3.width = 10;
-    label3.height = "30px";
-    label3.fontSize = 15;
-    label3.fontFamily = "Lucida Console";
-    label3.text = "DON'T TOUCH BOXES";
-    label3.color = "white";*/
         
     //Enabling the physics engine
     var gravityVector = new BABYLON.Vector3(0,-9.81, 0);
@@ -334,7 +317,9 @@ var createScene = function(){
     var finish = false;
     var final_boss = false;
     var right_direction = false;
-    var restart = false;
+    var restart = true;
+    var start_final_music = false;
+    var onetime = true;
 
     var box_lower = BABYLON.MeshBuilder.CreateBox("box_lower", {height: 1.5, width: 5.4, depth: 3});
     box_lower.position = new BABYLON.Vector3(0, -1, 0);
@@ -598,57 +583,6 @@ var createScene = function(){
     var camera_check = false;
     var jump_check = true;
 
-    /*const deviceSourceManager = new BABYLON.DeviceSourceManager(scene.getEngine());
-    deviceSourceManager.onDeviceConnectedObservable.add((deviceSource) => {
-        if (deviceSource.deviceType === BABYLON.DeviceType.Keyboard) {
-            deviceSource.onInputChangedObservable.add((eventData) => {
-                if(eventData.inputIndex=="87"){
-                    body.position.z+=0.2;
-                    console.log(body.position.z);
-                }
-                if(eventData.inputIndex=="65"){
-                    body.position.x-=0.15;
-                }
-                if(eventData.inputIndex=="83"){
-                    body.position.z-=0.2;
-                }
-                if(eventData.inputIndex=="68"){
-                    body.position.x+=0.15;
-                }
-                console.log(eventData.inputIndex);
-                if(eventData.inputIndex=="32"){
-                    if(jump_check){
-                        jump_check = false;
-                        body.physicsImpostor.applyImpulse(new BABYLON.Vector3(0.5, 400, -1), body.getAbsolutePosition());
-                    }
-                }
-
-
-            });
-        }
-    });
-    window.addEventListener("keyup", function (evt) {
-        if(evt.keyCode == 67){
-            if(!camera_check){
-            
-                camera.maxZ = 10000;
-                camera.radius = 20;
-                camera.heightOffset = 10;
-                camera.rotationOffset = 180;
-    
-                camera_check = true;
-            }
-            else{
-                
-                camera.maxZ = 270;
-                camera.radius = 25;
-                camera.heightOffset = 20;
-                camera.rotationOffset = 180;
-                camera_check = false;
-            }
-        }
-    });*/
-
     
     /**** Keyboard Events *****/
     var flag_cam = false;
@@ -688,22 +622,10 @@ var createScene = function(){
         //Manage the movements of the character (e.g. position, direction)
         /*if (inputMap["w"] || inputMap["W"] || inputMap["a"] || inputMap["A"] || inputMap["s"] || inputMap["S"] || inputMap["d"] || inputMap["D"]) {
             console.log(skeleton.bones[7].position);        
-            console.log(character.position);        
-            if(skeleton.bones[7].position.Y > 1.7) {
-                updown = false;
-            }
-            else if(skeleton.bones[7].position.Y < 1.7 ) {
-                updown = true;
-            }
-            if(updown){
-                skeleton.bones[7].translate(new BABYLON.Vector3(0, 0.2, 0));
-            } 
-            else{
-                skeleton.bones[7].translate(new BABYLON.Vector3(0, -0.2, 0));
-            } 
+            console.log(character.position);       
         }*/
-        if (inputMap["w"] || inputMap["W"]) {
-            //character.moveWithCollisions(character.forward.scaleInPlace(characterSpeed));
+        if ((inputMap["w"] || inputMap["W"]) && restart) {
+
             body.position.z += moving_speed;
             keydown = true;
             
@@ -752,8 +674,7 @@ var createScene = function(){
                 }
             }
         }
-        if (inputMap["s"] || inputMap["S"]) {
-            //character.moveWithCollisions(character.forward.scaleInPlace(-characterSpeedBackwards));
+        if ((inputMap["s"] || inputMap["S"]) && restart) {
             body.position.z -= moving_speed;
             keydown = true;   
             if(!walkup && !walkright && !walkdown && !walkleft){
@@ -804,8 +725,7 @@ var createScene = function(){
                 
             }
         }
-        if (inputMap["d"] || inputMap["D"]) {
-            //character.rotate(BABYLON.Vector3.Up(), -characterRotationSpeed);
+        if ((inputMap["d"] || inputMap["D"]) && restart) {
             body.position.x += moving_speed;
             keydown = true;
             if(!walkup && !walkright && !walkdown && !walkleft){
@@ -856,8 +776,7 @@ var createScene = function(){
                 
             }
         }
-        if (inputMap["a"] || inputMap["A"]) {
-            //character.rotate(BABYLON.Vector3.Up(), characterRotationSpeed);
+        if ((inputMap["a"] || inputMap["A"]) && restart) {
             body.position.x-=0.2;
             keydown = true;
             if(!walkup && !walkright && !walkdown && !walkleft){
@@ -929,16 +848,16 @@ var createScene = function(){
             }
             
         }
-        if(inputMap[" "]){
+        if(inputMap[" "] && restart){
             if(jump_check){
                 jump_check = false;
                 body.physicsImpostor.applyImpulse(new BABYLON.Vector3(0.5, 400, -1), body.getAbsolutePosition());
             }
         }
-        if((inputMap["r"] || inputMap["R"]) && restart){
+        if((inputMap["r"] || inputMap["R"]) && !restart){
             location.reload();
         }
-        if(inputMap["k"] || inputMap["K"]){
+        if((inputMap["k"] || inputMap["K"]) && restart){
             if(flag_change_light && flag_light_one_time){
                 flag_light = (flag_light+1)%3;
                 if(flag_light == 0){        
@@ -1261,8 +1180,8 @@ var createScene = function(){
                 life-=1;
                 life1.text = ""+life;
                 if(life == 0){
-                    hint.text = "GAME OVER";
-                    restart = true;
+                    hint.text = "GAME OVER \n Press 'R' to restart";
+                    restart = false;
                 } 
                 damage = true;
                 setTimeout(function(){damage = false}, 1000);
@@ -1286,7 +1205,19 @@ var createScene = function(){
     var stopper1;
     var damage = false;
     scene.registerBeforeRender(function () {
+        if(!final_boss){
+            if(!music.isPlaying){
+                music.play();
+            }
+        }
+        if(start_final_music){
+            music.stop();
+            if(!boss_music.isPlaying){
+                boss_music.play();
+            }
+        }
         //Collisions
+        if(restart){
         body.physicsImpostor.registerOnPhysicsCollide(ground.physicsImpostor, function() {
             jump_check = true;
         });
@@ -1299,8 +1230,8 @@ var createScene = function(){
                 life-=1;
                 life1.text = ""+life;
                 if(life == 0){
-                    hint.text = "GAME OVER";
-                    restart = true;
+                    hint.text = "GAME OVER \n Press 'R' to restart";
+                    restart = false;
                 } 
                 damage = true;
                 setTimeout(function(){damage = false}, 1000);
@@ -1353,8 +1284,8 @@ var createScene = function(){
                 life-=1;
                 life1.text = ""+life;
                 if(life == 0){
-                    hint.text = "GAME OVER";
-                    restart = true;
+                    hint.text = "GAME OVER \n Press 'R' to restart";
+                    restart = false;
                 } 
                 damage = true;
                 setTimeout(function(){damage = false}, 1000);
@@ -1368,23 +1299,24 @@ var createScene = function(){
                 life-=1;
                 life1.text = ""+life;
                 if(life == 0){
-                    hint.text = "GAME OVER";
-                    restart = true;
+                    hint.text = "GAME OVER \n Press 'R' to restart";
+                    restart = false;
                 } 
                 damage = true;
                 setTimeout(function(){damage = false}, 1000);
             }
         });
         body.physicsImpostor.registerOnPhysicsCollide(wall_box3.physicsImpostor, function() {
-            if(!scream.isPlaying){
+            if(!scream.isPlaying && onetime){
+                onetime = false;
                 scream.play();
             }
             if(!damage){
                 life-=1;
                 life1.text = ""+life;
                 if(life == 0){
-                    hint.text = "GAME OVER";
-                    restart = true;
+                    hint.text = "GAME OVER \n Press 'R' to restart";
+                    restart = false;
                 } 
                 damage = true;
                 setTimeout(function(){damage = false}, 1000);
@@ -1398,8 +1330,8 @@ var createScene = function(){
                 life-=1;
                 life1.text = ""+life;
                 if(life == 0){
-                    hint.text = "GAME OVER";
-                    restart = true;
+                    hint.text = "GAME OVER \n Press 'R' to restart";
+                    restart = false;
                 } 
                 damage = true;
                 setTimeout(function(){damage = false}, 1000);
@@ -1413,8 +1345,8 @@ var createScene = function(){
                 life-=1;
                 life1.text = ""+life;
                 if(life == 0){
-                    hint.text = "GAME OVER";
-                    restart = true;
+                    hint.text = "GAME OVER \n Press 'R' to restart";
+                    restart = false;
                 } 
                 damage = true;
                 setTimeout(function(){damage = false}, 1000);
@@ -1428,8 +1360,8 @@ var createScene = function(){
                 life-=1;
                 life1.text = ""+life;
                 if(life == 0){
-                    hint.text = "GAME OVER";
-                    restart = true;
+                    hint.text = "GAME OVER \n Press 'R' to restart";
+                    restart = false;
                 } 
                 damage = true;
                 setTimeout(function(){damage = false}, 1000);
@@ -1443,8 +1375,8 @@ var createScene = function(){
                 life-=1;
                 life1.text = ""+life;
                 if(life == 0){
-                    hint.text = "GAME OVER";
-                    restart = true;
+                    hint.text = "GAME OVER \n Press 'R' to restart";
+                    restart = false;
                 } 
                 damage = true;
                 setTimeout(function(){damage = false}, 1000);
@@ -1458,8 +1390,8 @@ var createScene = function(){
                 life-=1;
                 life1.text = ""+life;
                 if(life == 0){
-                    hint.text = "GAME OVER";
-                    restart = true;
+                    hint.text = "GAME OVER \n Press 'R' to restart";
+                    restart = false;
                 } 
                 damage = true;
                 setTimeout(function(){damage = false}, 1000);
@@ -1473,8 +1405,8 @@ var createScene = function(){
                 life-=1;
                 life1.text = ""+life;
                 if(life == 0){
-                    hint.text = "GAME OVER";
-                    restart = true;
+                    hint.text = "GAME OVER \n Press 'R' to restart";
+                    restart = false;
                 } 
                 damage = true;
                 setTimeout(function(){damage = false}, 1000);
@@ -1488,8 +1420,8 @@ var createScene = function(){
                 life-=1;
                 life1.text = ""+life;
                 if(life == 0){
-                    hint.text = "GAME OVER";
-                    restart = true;
+                    hint.text = "GAME OVER \n Press 'R' to restart";
+                    restart = false;
                 } 
                 damage = true;
                 setTimeout(function(){damage = false}, 1000);
@@ -1503,8 +1435,8 @@ var createScene = function(){
                 life-=1;
                 life1.text = ""+life;
                 if(life == 0){
-                    hint.text = "GAME OVER";
-                    restart = true;
+                    hint.text = "GAME OVER \n Press 'R' to restart";
+                    restart = false;
                 } 
                 damage = true;
                 setTimeout(function(){damage = false}, 1000);
@@ -1518,8 +1450,8 @@ var createScene = function(){
                 life-=1;
                 life1.text = ""+life;
                 if(life == 0){
-                    hint.text = "GAME OVER";
-                    restart = true;
+                    hint.text = "GAME OVER \n Press 'R' to restart";
+                    restart = false;
                 } 
                 damage = true;
                 setTimeout(function(){damage = false}, 1000);
@@ -1533,8 +1465,8 @@ var createScene = function(){
                 life-=1;
                 life1.text = ""+life;
                 if(life == 0){
-                    hint.text = "GAME OVER";
-                    restart = true;
+                    hint.text = "GAME OVER \n Press 'R' to restart";
+                    restart = false;
                 } 
                 damage = true;
                 setTimeout(function(){damage = false}, 1000);
@@ -1548,15 +1480,17 @@ var createScene = function(){
                 life-=1;
                 life1.text = ""+life;
                 if(life == 0){
-                    hint.text = "GAME OVER";
-                    restart = true;
+                    hint.text = "GAME OVER \n Press 'R' to restart";
+                    restart = false;
                 } 
                 damage = true;
                 setTimeout(function(){damage = false}, 1000);
             }   
         }); 
 
-        if(body.position.z > -145 && body.position.z <= -140) hint.text = "Hint: \n Try to jump!";
+        if(body.position.z > -145 && body.position.z <= -140){ 
+            hint.text = "Hint: \n Try to jump!";
+        }
 
         if(body.position.z > -140 && body.position.z <= -130) hint.text = "Hint: \n Well done!";
 
@@ -1680,7 +1614,7 @@ var createScene = function(){
         if(body.position.z > 38.2 ){ 
             if(!done){
                 done = true;
-                hint.text = "Hint: \n You have been seen. \n Survive until its ammo runs out. \n Avoid its attack!";
+                hint.text = "Hint: \n You have been seen. \n Survive until its ammo runs out. \n Press K to change lights";
                 light.setEnabled(false);
                 light1.setEnabled(true);
                 light2.setEnabled(true);
@@ -1709,6 +1643,7 @@ var createScene = function(){
                
             antenna_based.rotate(BABYLON.Axis.Y, Math.PI/90, BABYLON.Space.LOCAL);
             if(temp < 45){
+                start_final_music = true;
                 sphere.rotate(BABYLON.Axis.Y, Math.PI/90, BABYLON.Space.LOCAL);
                 temp++;
             }
@@ -1743,13 +1678,17 @@ var createScene = function(){
                                     clearInterval(stage3);
                                     final_boss  = false;
                                     finish = true;
-                                    hint.text = "Congratulation! \n You win!";
+                                    hint.text = "Congratulation! \n You win! \n Press 'R' to restart";
+                                    restart = false;
+                                    start_final_music = false;
+                                    boss_music.stop;
                                 }, 10000);
                             }, 15000);
                         },15000);
                     },5000);
                 }
             }
+        }
         }
     });
 
