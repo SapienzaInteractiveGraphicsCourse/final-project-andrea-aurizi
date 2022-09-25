@@ -320,6 +320,7 @@ var createScene = function(){
     var restart = true;
     var start_final_music = false;
     var onetime = true;
+    var died = false;
 
     var box_lower = BABYLON.MeshBuilder.CreateBox("box_lower", {height: 1.5, width: 5.4, depth: 3});
     box_lower.position = new BABYLON.Vector3(0, -1, 0);
@@ -854,10 +855,10 @@ var createScene = function(){
                 body.physicsImpostor.applyImpulse(new BABYLON.Vector3(0.5, 400, -1), body.getAbsolutePosition());
             }
         }
-        if((inputMap["r"] || inputMap["R"]) && !restart){
+        if((inputMap["r"] || inputMap["R"]) && restart){
             location.reload();
         }
-        if((inputMap["k"] || inputMap["K"]) && restart){
+        if((inputMap["k"] || inputMap["K"]) && !restart){
             if(flag_change_light && flag_light_one_time){
                 flag_light = (flag_light+1)%3;
                 if(flag_light == 0){        
@@ -1176,12 +1177,12 @@ var createScene = function(){
             if(!scream.isPlaying){
                 scream.play();
             }
-            if(!damage){
+            if(!damage && restart){
                 life-=1;
                 life1.text = ""+life;
                 if(life == 0){
-                    hint.text = "GAME OVER \n Press 'R' to restart";
                     restart = false;
+                    hint.text = "GAME OVER \n Press 'R' to restart";
                 } 
                 damage = true;
                 setTimeout(function(){damage = false}, 1000);
@@ -1217,7 +1218,7 @@ var createScene = function(){
             }
         }
         //Collisions
-        if(restart){
+        
         body.physicsImpostor.registerOnPhysicsCollide(ground.physicsImpostor, function() {
             jump_check = true;
         });
@@ -1226,7 +1227,7 @@ var createScene = function(){
             if(!scream.isPlaying){
                 scream.play();
             }
-            if(!damage){
+            if(!damage && restart){
                 life-=1;
                 life1.text = ""+life;
                 if(life == 0){
@@ -1280,7 +1281,7 @@ var createScene = function(){
             if(!scream.isPlaying){
                 scream.play();
             }
-            if(!damage){
+            if(!damage && restart){
                 life-=1;
                 life1.text = ""+life;
                 if(life == 0){
@@ -1295,7 +1296,7 @@ var createScene = function(){
             if(!scream.isPlaying){
                 scream.play();
             }
-            if(!damage){
+            if(!damage && restart){
                 life-=1;
                 life1.text = ""+life;
                 if(life == 0){
@@ -1311,7 +1312,7 @@ var createScene = function(){
                 onetime = false;
                 scream.play();
             }
-            if(!damage){
+            if(!damage && restart){
                 life-=1;
                 life1.text = ""+life;
                 if(life == 0){
@@ -1326,7 +1327,7 @@ var createScene = function(){
             if(!scream.isPlaying){
                 scream.play();
             }
-            if(!damage){
+            if(!damage && restart){
                 life-=1;
                 life1.text = ""+life;
                 if(life == 0){
@@ -1341,7 +1342,7 @@ var createScene = function(){
             if(!scream.isPlaying){
                 scream.play();
             }
-            if(!damage){
+            if(!damage && restart){
                 life-=1;
                 life1.text = ""+life;
                 if(life == 0){
@@ -1356,7 +1357,7 @@ var createScene = function(){
             if(!scream.isPlaying){
                 scream.play();
             }
-            if(!damage){
+            if(!damage && restart){
                 life-=1;
                 life1.text = ""+life;
                 if(life == 0){
@@ -1371,7 +1372,7 @@ var createScene = function(){
             if(!scream.isPlaying){
                 scream.play();
             }
-            if(!damage){
+            if(!damage && restart){
                 life-=1;
                 life1.text = ""+life;
                 if(life == 0){
@@ -1386,7 +1387,7 @@ var createScene = function(){
             if(!scream.isPlaying){
                 scream.play();
             }
-            if(!damage){
+            if(!damage && restart){
                 life-=1;
                 life1.text = ""+life;
                 if(life == 0){
@@ -1401,7 +1402,7 @@ var createScene = function(){
             if(!scream.isPlaying){
                 scream.play();
             }
-            if(!damage){
+            if(!damage && restart){
                 life-=1;
                 life1.text = ""+life;
                 if(life == 0){
@@ -1416,7 +1417,7 @@ var createScene = function(){
             if(!scream.isPlaying){
                 scream.play();
             }
-            if(!damage){
+            if(!damage && restart){
                 life-=1;
                 life1.text = ""+life;
                 if(life == 0){
@@ -1431,12 +1432,14 @@ var createScene = function(){
             if(!scream.isPlaying){
                 scream.play();
             }
-            if(!damage){
+            if(!damage && restart){
+                console.log(died);
                 life-=1;
                 life1.text = ""+life;
                 if(life == 0){
                     hint.text = "GAME OVER \n Press 'R' to restart";
                     restart = false;
+                    died = true;
                 } 
                 damage = true;
                 setTimeout(function(){damage = false}, 1000);
@@ -1446,7 +1449,7 @@ var createScene = function(){
             if(!scream.isPlaying){
                 scream.play();
             }
-            if(!damage){
+            if(!damage && restart){
                 life-=1;
                 life1.text = ""+life;
                 if(life == 0){
@@ -1461,7 +1464,7 @@ var createScene = function(){
             if(!scream.isPlaying){
                 scream.play();
             }
-            if(!damage){
+            if(!damage && restart){
                 life-=1;
                 life1.text = ""+life;
                 if(life == 0){
@@ -1476,7 +1479,7 @@ var createScene = function(){
             if(!scream.isPlaying){
                 scream.play();
             }
-            if(!damage){
+            if(!damage && restart){
                 life-=1;
                 life1.text = ""+life;
                 if(life == 0){
@@ -1688,7 +1691,6 @@ var createScene = function(){
                     },5000);
                 }
             }
-        }
         }
     });
 
